@@ -1,6 +1,6 @@
 {
   "name": "@theredhead/core-functions",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Provide a limited number of core types and functions",
   "main": "dist/index.js",
   "scripts": {
@@ -10,8 +10,7 @@
     "coverage": "nyc -r lcov -e .ts -x \"tests/*.test.ts\" npm run test",
     "coverage-cli": "nyc -r text -e .ts -x \"tests/*.test.ts\" npm run test"
   },
-  "keywords": [
-  ],
+  "keywords": [],
   "author": "kris@theredhead.nl",
   "license": "WTFPL",
   "devDependencies": {
