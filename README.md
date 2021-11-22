@@ -8,6 +8,9 @@
         - [`fmt(template: string, args: KeyValueMap<any> | any[]): string`](#fmttemplate-string-args-keyvaluemapany--any-string)
         - [`removeDiacritics(s: string): string`](#removediacriticss-string-string)
         - [`sluggify(s: string): string`](#sluggifys-string-string)
+        - [`ucFirst(s: string, useLocale: boolean = true): string`](#ucfirsts-string-uselocale-boolean--true-string)
+        - [`lcFirst(s: string, useLocale: boolean = true): string`](#lcfirsts-string-uselocale-boolean--true-string)
+        - [`pascalize(s: string, useLocale: boolean = true): string`](#pascalizes-string-uselocale-boolean--true-string)
       - [Searching and sorting arrays](#searching-and-sorting-arrays)
         - [`search<T>(arr: T[], expressionOrPredicate: string|((o: T) => boolean)): T[]`](#searchtarr-t-expressionorpredicate-stringo-t--boolean-t)
         - [`makeMatchesExpressionPredicate<T>(expression: string, maximumDepth: number = 5): (o: T) => boolean`](#makematchesexpressionpredicatetexpression-string-maximumdepth-number--5-o-t--boolean)
@@ -62,6 +65,18 @@ Remove accents from string by replacing them with the nearest non-accented chara
 ##### `sluggify(s: string): string`
 
 Makes easy to type, url passable versions of names.
+
+##### `ucFirst(s: string, useLocale: boolean = true): string`
+
+Return a string identical to the input string but with the first character uppercased
+
+##### `lcFirst(s: string, useLocale: boolean = true): string`
+
+Return a string identical to the input string but with the first character lowercased
+
+##### `pascalize(s: string, useLocale: boolean = true): string`
+
+Transform kebab-case, under_scored and regularly spaced strings into PascalCase
 
 #### Searching and sorting arrays
 
