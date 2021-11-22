@@ -6,6 +6,8 @@
       - [String manipulation](#string-manipulation)
         - [`replaceAll(template: string, placeholder: string, replacement: string): string`](#replacealltemplate-string-placeholder-string-replacement-string-string)
         - [`fmt(template: string, args: KeyValueMap<any> | any[]): string`](#fmttemplate-string-args-keyvaluemapany--any-string)
+        - [`removeDiacritics(s: string): string`](#removediacriticss-string-string)
+        - [`sluggify(s: string): string`](#sluggifys-string-string)
       - [Searching and sorting arrays](#searching-and-sorting-arrays)
         - [`search<T>(arr: T[], expressionOrPredicate: string|((o: T) => boolean)): T[]`](#searchtarr-t-expressionorpredicate-stringo-t--boolean-t)
         - [`makeMatchesExpressionPredicate<T>(expression: string, maximumDepth: number = 5): (o: T) => boolean`](#makematchesexpressionpredicatetexpression-string-maximumdepth-number--5-o-t--boolean)
@@ -52,6 +54,14 @@ When using an array, each marked index from the array is replaced with its' corr
 
   expect(result).toBe("Lorum ipsum dolar sit amet.");
 ```
+
+##### `removeDiacritics(s: string): string`
+
+Remove accents from string by replacing them with the nearest non-accented character
+
+##### `sluggify(s: string): string`
+
+Makes easy to type, url passable versions of names.
 
 #### Searching and sorting arrays
 
