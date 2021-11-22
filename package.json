@@ -10,7 +10,11 @@
     "coverage": "nyc -r lcov -e .ts -x \"tests/*.test.ts\" npm run test",
     "coverage-cli": "nyc -r text -e .ts -x \"tests/*.test.ts\" npm run test"
   },
-  "keywords": [],
+  "keywords": [
+    "string operations", "array operations", "string formatting", 
+    "fmt", "replaceAll", "ucFirst", "lcFirst", "pascalize", "removeDiacritics", "sluggify",
+    "search", "toSearchable", "makeMatchesExpressionPredicate"
+  ],
   "author": "kris@theredhead.nl",
   "license": "WTFPL",
   "devDependencies": {
