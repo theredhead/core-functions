@@ -1,7 +1,7 @@
 /** @format */
 
 import { fmt } from "../src/strings/fmt";
-import { replaceAll } from "../src/strings/replace-all";
+import { replaceAll } from "../src/index";
 
 describe("replaceAll replaces all placeholders", () => {
   it("replaces a placeholder", () => {
