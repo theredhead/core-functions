@@ -1,6 +1,6 @@
 {
   "name": "@theredhead/core-functions",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Provide a limited number of core types and functions",
   "main": "dist/index.js",
   "scripts": {
@@ -11,9 +11,19 @@
     "coverage-cli": "nyc -r text -e .ts -x \"tests/*.test.ts\" npm run test"
   },
   "keywords": [
-    "string operations", "array operations", "string formatting", 
-    "fmt", "replaceAll", "ucFirst", "lcFirst", "pascalize", "removeDiacritics", "sluggify",
-    "search", "toSearchable", "makeMatchesExpressionPredicate"
+    "string operations",
+    "array operations",
+    "string formatting",
+    "fmt",
+    "replaceAll",
+    "ucFirst",
+    "lcFirst",
+    "pascalize",
+    "removeDiacritics",
+    "sluggify",
+    "search",
+    "toSearchable",
+    "makeMatchesExpressionPredicate"
   ],
   "author": "kris@theredhead.nl",
   "license": "WTFPL",
