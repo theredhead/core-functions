@@ -1,6 +1,6 @@
 {
   "name": "@theredhead/core-functions",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Provide a limited number of core types and functions",
   "main": "dist/index.js",
   "scripts": {
