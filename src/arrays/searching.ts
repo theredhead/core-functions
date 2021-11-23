@@ -128,13 +128,19 @@ export const objectMatchesExpression = (
     }
   };
 
-  const object_matches_snippet = (o: any, snippet: SearchSnippet): boolean => {
+  const object_matches_snippet = (
+    o: any,
+    snippet: SearchSnippet,
+    maxDepth: number
+  ): boolean => {
+    if (maxDepth <= 0) return false;
+
     switch (typeof o) {
       case "object":
         if (o == null) return false;
 
         for (let key of Object.keys(o)) {
-          if (object_matches_snippet(o[key], snippet)) {
+          if (object_matches_snippet(o[key], snippet, maxDepth--)) {
             return true;
           }
         }
@@ -150,7 +156,9 @@ export const objectMatchesExpression = (
 
   let foundMatches = 0;
   expression.snippets.forEach((snippet) => {
-    if (object_matches_snippet(o, snippet)) {
+    if (
+      object_matches_snippet(o, snippet, getSearchableMaximumTraversalDepth())
+    ) {
       foundMatches++;
     }
   });

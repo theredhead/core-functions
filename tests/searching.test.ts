@@ -9,6 +9,7 @@ import {
   parseSearchExpression,
   SearchSnippetType,
   search,
+  setSearchableMaximumTraversalDepth,
 } from "../src/index";
 
 describe("parseSearchExpression", () => {
@@ -150,5 +151,67 @@ describe("search", () => {
 
     expect(search(mockData, "Yep").length).toBe(1);
     expect(search(mockData, "Nope").length).toBe(1);
+  });
+
+  it("will not traverse forever", () => {
+    const obj = {
+      a: {
+        b: {
+          c: {
+            d: {
+              e: {
+                f: {
+                  g: {
+                    h: {
+                      i: {
+                        j: {
+                          k: {
+                            l: {
+                              m: {
+                                n: {
+                                  o: {
+                                    p: {
+                                      q: {
+                                        r: {
+                                          s: {
+                                            t: {
+                                              u: {
+                                                v: {
+                                                  w: {
+                                                    x: {
+                                                      y: {
+                                                        z: "We'll never get here...",
+                                                      },
+                                                    },
+                                                  },
+                                                },
+                                              },
+                                            },
+                                          },
+                                        },
+                                      },
+                                    },
+                                  },
+                                },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    expect(() => search([obj], "hi!")).not.toThrow();
+
+    const initial = setSearchableMaximumTraversalDepth(50);
+    expect(search([obj], "never").length).toBe(1);
+    setSearchableMaximumTraversalDepth(initial);
   });
 });
