@@ -1,73 +1,171 @@
-export let toSearchableMaximumTraversalDepth = 5;
-export let toSearchableBooleanTrue = 'true';
-export let toSearchableBooleanFalse = 'false';
-/**
- * Searches for expression matches in an array.
- * 
- * @param arr 
- * @param expressionOrPredicate 
- * @returns 
- */
-export const search = <T>(arr: T[], expressionOrPredicate: string|((o: T) => boolean)): T[] => {
-  if (typeof expressionOrPredicate === 'string') {
-    const predicate = makeMatchesExpressionPredicate<T>(expressionOrPredicate);
-    return [...arr].filter(predicate);
-  } else {
-    return [...arr].filter(expressionOrPredicate);
-  }
-}
+/** @format */
 
-/**
- * Compares the value tree of an object (so excluding it's property names) to a search expression 
- * and returns a flag indicating wether the object matches de expression.
- * 
- * - An expression is a whitespace seperated string of snippets
- * - Objects are recursively stringified in such a way that all contained values are stringified 
- *   and concatenated together to form one blob of text. There is a maximum depth to the 
- *   stringification of values.
- * - each snippet from the expression must be present in the resulting blob for the object to be
- *   considered a match. They do not need to be in the same property.
- * 
- * @param expression 
- * @returns 
- */
-export const makeMatchesExpressionPredicate = <T>(expression: string, maximumDepth: number = -1): (o: T) => boolean => {
-  const maxDepth = maximumDepth > -1
-    ? maximumDepth
-    : toSearchableMaximumTraversalDepth;
-  const parts = expression.split(/\s/).map(s => s.toLocaleLowerCase());
-  return (o: T) => {
-    if (parts.map(part => toSearchable(o, maxDepth).indexOf(part)).some(v => v < 0)) {
-      return false
+import { removeDiacritics } from "../index";
+import { StringParser } from "../strings/string-parser";
+
+let toSearchableMaximumTraversalDepth = 5;
+let toSearchableBooleanTrue = "true";
+let toSearchableBooleanFalse = "false";
+
+export const setSearchableMaximumTraversalDepth = (value: number): number => {
+  const previous = toSearchableMaximumTraversalDepth;
+  toSearchableMaximumTraversalDepth = value;
+  return previous;
+};
+
+export const getSearchableMaximumTraversalDepth = (): number =>
+  toSearchableMaximumTraversalDepth;
+
+export const setSearchableBooleanTrue = (value: string): string => {
+  const previous = toSearchableBooleanTrue;
+  toSearchableBooleanTrue = value;
+  return previous;
+};
+
+export const getSearchableBooleanTrue = (): string => toSearchableBooleanTrue;
+
+export const setSearchableBooleanFalse = (value: string): string => {
+  const previous = toSearchableBooleanFalse;
+  toSearchableBooleanFalse = value;
+  return previous;
+};
+
+export const getSearchableBooleanFalse = (): string => toSearchableBooleanFalse;
+
+export const parseSearchSnippet = (s: string): SearchSnippet => {
+  const token = s.charAt(0);
+
+  switch (token) {
+    case "!":
+      const rest = s.substr(1);
+      return { type: SearchSnippetType.EXACT, text: rest };
+    default:
+      return { type: SearchSnippetType.CONTAINS, text: s };
+  }
+};
+
+export const parseSearchExpression = (s: string): SearchExpression => {
+  const parser = new StringParser(s);
+  const snips = [];
+
+  let snip = "";
+  while (!parser.atEnd) {
+    const char = parser.next();
+    switch (char) {
+      case " ":
+        if (snip.length) snips.push(snip);
+        snip = "";
+        break;
+      case '"':
+        if (snip.length) snips.push(snip);
+        snip = parser.until('"').join("");
+        snips.push(snip);
+        snip = "";
+        break;
+      default:
+        snip += char;
+        break;
     }
-    return true;
   }
+  if (snip.length) snips.push(snip);
+
+  return <SearchExpression>{
+    caseSensitive: false,
+    accentSensitive: false,
+    snippets: snips.map((snip) => parseSearchSnippet(snip)),
+  };
+};
+
+export interface SearchExpression {
+  caseSensitive: boolean;
+  accentSensitive: boolean;
+  snippets: SearchSnippet[];
 }
 
-/**
- * Recursively flattens all values of an object (upto a maximum depth) into a blob of text that
- * can be used to search against.
- * 
- * @param o 
- * @param maximumDepth 
- * @returns 
- */
-export const toSearchable = (o: any, maximumDepth: number = toSearchableMaximumTraversalDepth): string => {
-  if (maximumDepth < 0) return '';
-
-  if (o === null || o === undefined) {
-    return '';
-  } else if (Array.isArray(o)) {
-    return o.map(
-      o => toSearchable(o, maximumDepth - 1)
-    ).join(', ').toLocaleLowerCase();
-  } else if (typeof o === 'boolean') {
-    return o ? toSearchableBooleanTrue : toSearchableBooleanFalse;
-  } else if (['object', 'function'].indexOf(typeof o) > -1) {
-    return Object.keys(o).map(
-      key => toSearchable(o[key], maximumDepth - 1).trim()
-    ).join('\n').toLocaleLowerCase()
-  }
-  // everything else is considered "stringable"
-  return String(o).toLocaleLowerCase().trim();
+export enum SearchSnippetType {
+  EXACT = "exact",
+  CONTAINS = "contains",
 }
+
+export interface SearchSnippet {
+  type: SearchSnippetType;
+  text: string;
+}
+
+export const objectMatchesExpression = (
+  o: any,
+  expression: SearchExpression
+): boolean => {
+  const normalize = (
+    s: string,
+    lowered: boolean,
+    stripAccents: boolean
+  ): string => {
+    return lowered
+      ? stripAccents
+        ? removeDiacritics(s)
+        : s
+      : (stripAccents ? removeDiacritics(s) : s).toLocaleLowerCase();
+  };
+
+  const valueMatchesSnippet = (s: string, snippet: SearchSnippet): boolean => {
+    const haystack = normalize(
+      s,
+      expression.caseSensitive,
+      !expression.accentSensitive
+    );
+    const needle = normalize(
+      snippet.text,
+      expression.caseSensitive,
+      !expression.accentSensitive
+    );
+
+    switch (snippet.type) {
+      case SearchSnippetType.EXACT:
+        return needle === haystack;
+      case SearchSnippetType.CONTAINS:
+        return haystack.indexOf(needle) > -1;
+    }
+  };
+
+  const object_matches_snippet = (o: any, snippet: SearchSnippet): boolean => {
+    switch (typeof o) {
+      case "object":
+        if (o == null) return false;
+
+        for (let key of Object.keys(o)) {
+          if (object_matches_snippet(o[key], snippet)) {
+            return true;
+          }
+        }
+        break;
+      case "boolean":
+        const boolVal = o ? toSearchableBooleanTrue : toSearchableBooleanFalse;
+        return valueMatchesSnippet(boolVal, snippet);
+      default:
+        return valueMatchesSnippet(String(o), snippet);
+    }
+    return false;
+  };
+
+  let foundMatches = 0;
+  expression.snippets.forEach((snippet) => {
+    if (object_matches_snippet(o, snippet)) {
+      foundMatches++;
+    }
+  });
+  return foundMatches == expression.snippets.length;
+};
+
+export const search = <T>(
+  haystack: T[],
+  expression: string | SearchExpression
+): T[] => {
+  const e =
+    typeof expression === "string"
+      ? parseSearchExpression(expression)
+      : expression;
+  const result = haystack.filter((o) => objectMatchesExpression(o, e));
+  // console.log({ expression: e, found: result });
+  return result;
+};
